@@ -14,6 +14,7 @@ class ViewController: UIViewController, MCBrowserViewControllerDelegate {
     
     @IBOutlet var fields: [TTTImageView]!
     var currentPlayer:String!
+    var playerTurn = true
     
     var appDelegate:AppDelegate!
     
@@ -90,6 +91,7 @@ class ViewController: UIViewController, MCBrowserViewControllerDelegate {
                         currentPlayer = "x"
                     }
                     
+                    playerTurn = true
                     checkResults()
                     
                 }
@@ -104,27 +106,29 @@ class ViewController: UIViewController, MCBrowserViewControllerDelegate {
     
     
     func fieldTapped (_ recognizer:UITapGestureRecognizer){
-        let tappedField  = recognizer.view as! TTTImageView
-        tappedField.setPlayer(p: currentPlayer)
-        
-        let messageDict = ["field":tappedField.tag, "player":currentPlayer] as [String : Any]
-        
-        let messageData:Data
-        do {
-            messageData = try JSONSerialization.data(withJSONObject: messageDict, options: JSONSerialization.WritingOptions.prettyPrinted)
+        if(playerTurn){
+            let tappedField  = recognizer.view as! TTTImageView
             
-            try appDelegate.mpcHandler.session.send(messageData, toPeers: appDelegate.mpcHandler.session.connectedPeers, with: MCSessionSendDataMode.reliable)
-        } catch {
-            print (error)
-        }
+            if(!tappedField.activated){
+                tappedField.setPlayer(p: currentPlayer)
+                let messageDict = ["field":tappedField.tag, "player":currentPlayer] as [String : Any]
+        
+                let messageData:Data
+                do {
+                    messageData = try JSONSerialization.data(withJSONObject: messageDict, options: JSONSerialization.WritingOptions.prettyPrinted)
+            
+                    try appDelegate.mpcHandler.session.send(messageData, toPeers: appDelegate.mpcHandler.session.connectedPeers, with: MCSessionSendDataMode.reliable)
+                } catch {
+                    print (error)
+                }
         
         //        if error != nil{
         //            println("error: \(error?.localizedDescription)")
         //        }
-        
-        checkResults()
-        
-        
+                playerTurn = false
+                checkResults()
+            }
+        }
     }
     
     
@@ -145,8 +149,13 @@ class ViewController: UIViewController, MCBrowserViewControllerDelegate {
         }
         
         currentPlayer = "x"
+        playerTurn = true
     }
     @IBAction func newGame(_ sender: AnyObject) {
+        startOver()
+    }
+    
+    func startOver(){
         resetField()
         
         let messageDict = ["string":"New Game"]
@@ -159,7 +168,6 @@ class ViewController: UIViewController, MCBrowserViewControllerDelegate {
         } catch {
             print (error)
         }
-        
     }
     
     func checkResults(){
@@ -201,10 +209,7 @@ class ViewController: UIViewController, MCBrowserViewControllerDelegate {
         
         if winner != ""{
             let alert = UIAlertController(title: "Tic Tac Toe", message: "The winner is \(winner)", preferredStyle: UIAlertControllerStyle.alert)
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: { (alert:UIAlertAction!) -> Void in
-                self.resetField()
-            }))
-            
+            startOver()
             self.present(alert, animated: true, completion: nil)
         }
         
@@ -228,6 +233,7 @@ class ViewController: UIViewController, MCBrowserViewControllerDelegate {
     
     
 }
+
 
 
 
