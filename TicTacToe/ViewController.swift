@@ -112,7 +112,7 @@ class ViewController: UIViewController, MCBrowserViewControllerDelegate {
             if(!tappedField.activated){
                 tappedField.setPlayer(p: currentPlayer)
                 let messageDict = ["field":tappedField.tag, "player":currentPlayer] as [String : Any]
-        
+                
                 let messageData:Data
                 do {
                     messageData = try JSONSerialization.data(withJSONObject: messageDict, options: JSONSerialization.WritingOptions.prettyPrinted)
@@ -121,7 +121,7 @@ class ViewController: UIViewController, MCBrowserViewControllerDelegate {
                 } catch {
                     print (error)
                 }
-        
+                
         //        if error != nil{
         //            println("error: \(error?.localizedDescription)")
         //        }
@@ -209,12 +209,13 @@ class ViewController: UIViewController, MCBrowserViewControllerDelegate {
         
         if winner != ""{
             let alert = UIAlertController(title: "Tic Tac Toe", message: "The winner is \(winner)", preferredStyle: UIAlertControllerStyle.alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: { (alert:UIAlertAction!) -> Void in
+            }))
             startOver()
             self.present(alert, animated: true, completion: nil)
         }
         
     }
-    
     
     
     func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController!) {
